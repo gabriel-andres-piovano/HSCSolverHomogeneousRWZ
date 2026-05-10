@@ -4,7 +4,7 @@
 (*Begin package*)
 
 
-BeginPackage["HSCSolverhomogeneousRWZ`"];
+BeginPackage["HSCSolverHomogeneousRWZ`"];
 
 
 RWsolverInres::usage = "RWsolverInres[l, \[Omega], r1g] gives the rescaled In solution and its first-order derivative of the homogeneous Regge-Wheeler equation. r1g is the outermost integration radius.";
@@ -232,7 +232,7 @@ RWsolverInres[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,rin,rp,p,qRW,cInH,\[Psi
 	rp=2;
 	If[(Precision[\[Omega]]==MachinePrecision)||(Precision[r1g]==MachinePrecision),
 		precODE=MachinePrecision;
-		precBC=precODE;
+		precBC=15;
 		,
 		precODE=Min[Precision[\[Omega]]-5,Precision[r1g]-5];
 		precBC=Min[Precision[\[Omega]],Precision[r1g]];
@@ -254,8 +254,8 @@ RWsolverInres[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,rin,rp,p,qRW,cInH,\[Psi
 
 	(* Remove local variables not garbage collected*)
 	ClearSystemCache[];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
 	Remove[r];
 
 	{Function[{r},Evaluate[If[r<=rin,Evaluate[\[Psi]hor[r]],Evaluate[\[Psi]in[r]]]],Listable],Function[{r},Evaluate[If[r<=rin,Evaluate[\[Psi]hor'[r]],Evaluate[d\[Psi]in[r]]]],Listable],rin}
@@ -269,7 +269,7 @@ RWsolverInres[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,rin,rp,p,qRW,cInH,\[Psi
 RWsolverUpres[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,rout,p,qRW,cOutinf,\[Psi]inf,eqinf,r,X,Y,\[Psi]up,d\[Psi]up,nmaxinf},
 	If[(Precision[\[Omega]]==MachinePrecision)||(Precision[r2g]==MachinePrecision),
 		precODE=MachinePrecision;
-		precBC=precODE;
+		precBC=15;
 		,
 		precODE=Min[Precision[\[Omega]]-5,Precision[r2g]-5];
 		precBC=Min[Precision[\[Omega]],Precision[r2g]];
@@ -290,8 +290,8 @@ RWsolverUpres[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,rout,p,qRW,cOutinf,\[Ps
 	{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,r2g,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE];
 	(* Remove local variables not garbage collected*)
 	ClearSystemCache[];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
 	Remove[r];
 
 	{Function[{r},Evaluate[If[r>=rout,Evaluate[\[Psi]inf[r]],Evaluate[\[Psi]up[r]]]],Listable],Function[{r},Evaluate[If[r>=rout,Evaluate[\[Psi]inf'[r]],Evaluate[d\[Psi]up[r]]]],Listable],rout}
@@ -307,7 +307,7 @@ RWsolverIn[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,rin,rout,routplus,routmin,
 	rtor[r_]:=2Log[(r-rp)/2]+r;
 	If[(Precision[\[Omega]]==MachinePrecision)||(Precision[r1g]==MachinePrecision),
 		precODE=MachinePrecision;
-		precBC=precODE;
+		precBC=15;
 		,
 		precODE=Min[Precision[\[Omega]]-5,Precision[r1g]-5];
 		precBC=Min[Precision[\[Omega]],Precision[r1g]];
@@ -362,8 +362,8 @@ RWsolverIn[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,rin,rout,routplus,routmin,
 	];
 	(* Remove local variables not garbage collected*)
 	ClearSystemCache[];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
 	Remove[r];
 
 	{Rin,dRin,{rin,rout}}
@@ -379,7 +379,7 @@ RWsolverUp[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,rinplus
 	rtor[r_]:=2Log[(r-rp)/2]+r;
 	If[(Precision[\[Omega]]==MachinePrecision)||(Precision[r2g]==MachinePrecision),
 		precODE=MachinePrecision;
-		precBC=precODE;
+		precBC=15;
 		,
 		precODE=Min[Precision[\[Omega]]-5,Precision[r2g]-5];
 		precBC=Min[Precision[\[Omega]],Precision[r2g]];
@@ -412,30 +412,35 @@ RWsolverUp[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,rinplus
 			X[rout]==\[Psi]inf[rout],Y[rout]==\[Psi]inf'[rout]
 		};  
 
-	If[r2g<=rin,
-		{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,rin,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
-		{Cinc,Cref}={C1,C2}/.NSolve[C1*Rhorplus[rin]+C2*Rhormin[rin]==(Exp[I*\[Omega]*rtor[rin]]\[Psi]up[rin])&&C1*dRhorplus[rin]+C2*dRhormin[rin]==(Exp[I*\[Omega]*rtor[rin]](((I*\[Omega]*rin)/(rin-rp))\[Psi]up[rin]+d\[Psi]up[rin])),{C1,C2}][[1]];
-
-		Rup=Function[{r},Evaluate[If[r>=rin,
-									Evaluate[If[r<=rout,Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]up[r]],Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]inf[r]]]]
-									,
-									Evaluate[{Cinc,Cref} . {Rhorplus[r],Rhormin[r]}]
-								]],Listable];
-		dRup=Function[{r},Evaluate[If[r>=rin,
-									Evaluate[If[r<=rout,Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]up[r]+d\[Psi]up[r])],Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]inf[r]+\[Psi]inf'[r])]]]
-									,
-									Evaluate[{Cinc,Cref} . {dRhorplus[r],dRhormin[r]}]
-								]],Listable];
+	If[r2g>=rout,
+		Rup=Function[{r},Evaluate[Exp[I \[Omega] rtor[r]]\[Psi]inf[r]],Listable];
+		dRup=Function[{r},Evaluate[Exp[I \[Omega] rtor[r]](((I \[Omega] r)/(r-rp))\[Psi]inf[r]+\[Psi]inf'[r])],Listable];
 		,
-		{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,r2g,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
+		If[r2g<=rin,
+			{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,rin,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
+			{Cinc,Cref}={C1,C2}/.NSolve[C1*Rhorplus[rin]+C2 Rhormin[rin]==(Exp[I*\[Omega]*rtor[rin]]\[Psi]up[rin])&&C1*dRhorplus[rin]+C2*dRhormin[rin]==(Exp[I*\[Omega]*rtor[rin]](((I*\[Omega]*rin)/(rin-rp))\[Psi]up[rin]+d\[Psi]up[rin])),{C1,C2}][[1]];
+		
+			Rup=Function[{r},Evaluate[If[r>=rin,
+										Evaluate[If[r<=rout,Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]up[r]],Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]inf[r]]]]
+										,
+										Evaluate[{Cinc,Cref} . {Rhorplus[r],Rhormin[r]}]
+									]],Listable];
+			dRup=Function[{r},Evaluate[If[r>=rin,
+										Evaluate[If[r<=rout,Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]up[r]+d\[Psi]up[r])],Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]inf[r]+\[Psi]inf'[r])]]]
+										,
+										Evaluate[{Cinc,Cref} . {dRhorplus[r],dRhormin[r]}]
+									]],Listable];
+			,
+			{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,r2g,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
 
-		Rup=Function[{r},Evaluate[If[r>rout,Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]inf[r]],Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]up[r]]]],Listable];
-		dRup=Function[{r},Evaluate[If[r>rout,Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]inf[r]+\[Psi]inf'[r])],Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]up[r]+d\[Psi]up[r])]]],Listable];
+			Rup=Function[{r},Evaluate[If[r>rout,Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]inf[r]],Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]up[r]]]],Listable];
+			dRup=Function[{r},Evaluate[If[r>rout,Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]inf[r]+\[Psi]inf'[r])],Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]up[r]+d\[Psi]up[r])]]],Listable];
+		];
 	];
 	(* Remove local variables not garbage collected*)
 	ClearSystemCache[];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
 	Remove[r];
 
 	{Rup,dRup,{rin,rout}}
@@ -452,7 +457,7 @@ RWsolverUpNearHorizon[l_,\[Omega]_,{\[Psi]up_,d\[Psi]up_}]:=Module[{precODE,prec
 
 	If[(Precision[\[Omega]]==MachinePrecision),
 		precODE=MachinePrecision;
-		precBC=precODE;
+		precBC=15;
 		,
 		precODE=Precision[\[Omega]]-5;
 		precBC=Precision[\[Omega]];
@@ -681,7 +686,7 @@ ZsolverInres[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,\[Lambda],rin,rp,p,qZ,cI
 	rp=2;
 	If[(Precision[\[Omega]]==MachinePrecision)||(Precision[r1g]==MachinePrecision),
 		precODE=MachinePrecision;
-		precBC=precODE;
+		precBC=15;
 		,
 		precODE=Min[Precision[\[Omega]]-5,Precision[r1g]-5];
 		precBC=Min[Precision[\[Omega]],Precision[r1g]];
@@ -704,8 +709,8 @@ ZsolverInres[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,\[Lambda],rin,rp,p,qZ,cI
 
 	(* Remove local variables not garbage collected*)
 	ClearSystemCache[];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
 	Remove[r];
 
 	{Function[{r},Evaluate[If[r<=rin,Evaluate[\[Psi]hor[r]],Evaluate[\[Psi]in[r]]]],Listable],Function[{r},Evaluate[If[r<=rin,Evaluate[\[Psi]hor'[r]],Evaluate[d\[Psi]in[r]]]],Listable],rin}
@@ -719,7 +724,7 @@ ZsolverInres[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,\[Lambda],rin,rp,p,qZ,cI
 ZsolverUpres[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rout,p,qZ,cOutinf,\[Psi]inf,eqinf,r,X,Y,\[Psi]up,d\[Psi]up,nmaxinf},
 	If[(Precision[\[Omega]]==MachinePrecision)||(Precision[r2g]==MachinePrecision),
 		precODE=MachinePrecision;
-		precBC=precODE;
+		precBC=15;
 		,
 		precODE=Min[Precision[\[Omega]]-5,Precision[r2g]-5];
 		precBC=Min[Precision[\[Omega]],Precision[r2g]];
@@ -742,8 +747,8 @@ ZsolverUpres[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rout,p,qZ,cOut
 
 	(* Remove local variables not garbage collected*)
 	ClearSystemCache[];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
 	Remove[r];
 
 	{Function[{r},Evaluate[If[r>=rout,Evaluate[\[Psi]inf[r]],Evaluate[\[Psi]up[r]]]],Listable],Function[{r},Evaluate[If[r>=rout,Evaluate[\[Psi]inf'[r]],Evaluate[d\[Psi]up[r]]]],Listable],rout}
@@ -759,7 +764,7 @@ ZsolverIn[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,routplus
 	rtor[r_]:=2Log[(r-rp)/2]+r;
 	If[(Precision[\[Omega]]==MachinePrecision)||(Precision[r1g]==MachinePrecision),
 		precODE=MachinePrecision;
-		precBC=precODE;
+		precBC=15;
 		,
 		precODE=Min[Precision[\[Omega]]-5,Precision[r1g]-5];
 		precBC=Min[Precision[\[Omega]],Precision[r1g]];
@@ -815,8 +820,8 @@ ZsolverIn[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,routplus
 
 	(* Remove local variables not garbage collected*)
 	ClearSystemCache[];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
 	Remove[r];
 
 	{Rin,dRin,{rin,rout}}
@@ -863,33 +868,38 @@ ZsolverUp[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,rinplus,
 			X'[r]== Y[r],
 			Y'[r]==-p[r,1]Y[r]-qZ[r] X[r],
 			X[rout]==\[Psi]inf[rout],Y[rout]==\[Psi]inf'[rout]
-		};  
-
-	If[r2g<=rin,
-		{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,rin,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
-		{Cinc,Cref}={C1,C2}/.NSolve[C1*Rhorplus[rin]+C2 Rhormin[rin]==(Exp[I*\[Omega]*rtor[rin]]\[Psi]up[rin])&&C1*dRhorplus[rin]+C2*dRhormin[rin]==(Exp[I*\[Omega]*rtor[rin]](((I*\[Omega]*rin)/(rin-rp))\[Psi]up[rin]+d\[Psi]up[rin])),{C1,C2}][[1]];
-		
-		Rup=Function[{r},Evaluate[If[r>=rin,
-									Evaluate[If[r<=rout,Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]up[r]],Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]inf[r]]]]
-									,
-									Evaluate[{Cinc,Cref} . {Rhorplus[r],Rhormin[r]}]
-								]],Listable];
-		dRup=Function[{r},Evaluate[If[r>=rin,
-									Evaluate[If[r<=rout,Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]up[r]+d\[Psi]up[r])],Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]inf[r]+\[Psi]inf'[r])]]]
-									,
-									Evaluate[{Cinc,Cref} . {dRhorplus[r],dRhormin[r]}]
-								]],Listable];
+		}; 
+		 
+	If[r2g>=rout,
+		Rup=Function[{r},Evaluate[Exp[I \[Omega] rtor[r]]\[Psi]inf[r]],Listable];
+		dRup=Function[{r},Evaluate[Exp[I \[Omega] rtor[r]](((I \[Omega] r)/(r-rp))\[Psi]inf[r]+\[Psi]inf'[r])],Listable];
 		,
-		{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,r2g,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
+		If[r2g<=rin,
+			{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,rin,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
+			{Cinc,Cref}={C1,C2}/.NSolve[C1*Rhorplus[rin]+C2 Rhormin[rin]==(Exp[I*\[Omega]*rtor[rin]]\[Psi]up[rin])&&C1*dRhorplus[rin]+C2*dRhormin[rin]==(Exp[I*\[Omega]*rtor[rin]](((I*\[Omega]*rin)/(rin-rp))\[Psi]up[rin]+d\[Psi]up[rin])),{C1,C2}][[1]];
+		
+			Rup=Function[{r},Evaluate[If[r>=rin,
+										Evaluate[If[r<=rout,Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]up[r]],Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]inf[r]]]]
+										,
+										Evaluate[{Cinc,Cref} . {Rhorplus[r],Rhormin[r]}]
+									]],Listable];
+			dRup=Function[{r},Evaluate[If[r>=rin,
+										Evaluate[If[r<=rout,Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]up[r]+d\[Psi]up[r])],Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]inf[r]+\[Psi]inf'[r])]]]
+										,
+										Evaluate[{Cinc,Cref} . {dRhorplus[r],dRhormin[r]}]
+									]],Listable];
+			,
+			{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,r2g,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
 
-		Rup=Function[{r},Evaluate[If[r>rout,Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]inf[r]],Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]up[r]]]],Listable];
-		dRup=Function[{r},Evaluate[If[r>rout,Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]inf[r]+\[Psi]inf'[r])],Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]up[r]+d\[Psi]up[r])]]],Listable];
-	];
+			Rup=Function[{r},Evaluate[If[r>rout,Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]inf[r]],Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]up[r]]]],Listable];
+			dRup=Function[{r},Evaluate[If[r>rout,Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]inf[r]+\[Psi]inf'[r])],Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]up[r]+d\[Psi]up[r])]]],Listable];
+		];
+	]
 
 	(* Remove local variables not garbage collected*)
 	ClearSystemCache[];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
-	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneuosRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneuosRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneuosRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
+	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`Y$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
 	Remove[r];
 
 	{Rup,dRup,{rin,rout}}
@@ -906,7 +916,7 @@ ZsolverUpNearHorizon[l_,\[Omega]_,{\[Psi]up_,d\[Psi]up_}]:=Module[{precODE,precB
 
 	If[(Precision[\[Omega]]==MachinePrecision),
 		precODE=MachinePrecision;
-		precBC=precODE;
+		precBC=15;
 		,
 		precODE=Precision[\[Omega]]-5;
 		precBC=Precision[\[Omega]];
