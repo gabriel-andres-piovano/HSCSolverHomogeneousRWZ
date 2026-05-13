@@ -228,14 +228,18 @@ bcinfminRW[workingprecision_,l_,\[Omega]_]:=Module[{B1n,rp,rout,err,i,p,q,pinfmi
 (*In solution rescaled*)
 
 
-RWsolverInres[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,rin,rp,p,qRW,cInH,\[Psi]hor,eqhor,X,Y,r,\[Psi]in,d\[Psi]in,nmaxhor},
+RWsolverInres[l_,\[Omega]_,r1g_]:=Module[{workODE,precBC,precGoal,accGoal,rin,rp,p,qRW,cInH,\[Psi]hor,eqhor,X,Y,r,\[Psi]in,d\[Psi]in,nmaxhor},
 	rp=2;
 	If[(Precision[\[Omega]]==MachinePrecision)||(Precision[r1g]==MachinePrecision),
-		precODE=MachinePrecision;
+		workODE=MachinePrecision;
+		precGoal=13;
+		accGoal=13;
 		precBC=15;
 		,
-		precODE=Min[Precision[\[Omega]]-5,Precision[r1g]-5];
-		precBC=Min[Precision[\[Omega]],Precision[r1g]];
+		workODE=Min[{Precision[\[Omega]]-5,Precision[r1g]-5}];
+		precGoal=workODE-5;
+		accGoal=workODE-5;
+		precBC=Min[{Precision[\[Omega]],Precision[r1g]}];
 	];
 	p[r_,H_]:=2 (1+I*H*r^2*\[Omega])/((-2+r)r);
 	qRW[r_]:=(6-l(1+l)r)/((-2+r)r^2);
@@ -250,7 +254,7 @@ RWsolverInres[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,rin,rp,p,qRW,cInH,\[Psi
 			X[rin]==\[Psi]hor[rin],Y[rin]== \[Psi]hor'[rin]
 		};
 
-	{\[Psi]in,d\[Psi]in}={X,Y}/.First@NDSolve[eqhor,{X,Y},{r,rin,r1g},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
+	{\[Psi]in,d\[Psi]in}={X,Y}/.First@NDSolve[eqhor,{X,Y},{r,rin,r1g},Method->"StiffnessSwitching",WorkingPrecision->workODE,PrecisionGoal->precGoal,AccuracyGoal->accGoal,InterpolationOrder->All];
 
 	(* Remove local variables not garbage collected*)
 	ClearSystemCache[];
@@ -266,13 +270,17 @@ RWsolverInres[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,rin,rp,p,qRW,cInH,\[Psi
 (*Up solution rescaled*)
 
 
-RWsolverUpres[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,rout,p,qRW,cOutinf,\[Psi]inf,eqinf,r,X,Y,\[Psi]up,d\[Psi]up,nmaxinf},
+RWsolverUpres[l_,\[Omega]_,r2g_]:=Module[{workODE,precBC,precGoal,accGoal,rout,p,qRW,cOutinf,\[Psi]inf,eqinf,r,X,Y,\[Psi]up,d\[Psi]up,nmaxinf},
 	If[(Precision[\[Omega]]==MachinePrecision)||(Precision[r2g]==MachinePrecision),
-		precODE=MachinePrecision;
+		workODE=MachinePrecision;
+		precGoal=13;
+		accGoal=13;
 		precBC=15;
 		,
-		precODE=Min[Precision[\[Omega]]-5,Precision[r2g]-5];
-		precBC=Min[Precision[\[Omega]],Precision[r2g]];
+		workODE=Min[{Precision[\[Omega]]-5,Precision[r2g]-5}];
+		precGoal=workODE-5;
+		accGoal=workODE-5;
+		precBC=Min[{Precision[\[Omega]],Precision[r2g]}];
 	];
 	p[r_,H_]:=2 (1+I*H*r^2*\[Omega])/((-2+r)r);
 	qRW[r_]:=(6-l(1+l)r)/((-2+r)r^2);
@@ -287,7 +295,7 @@ RWsolverUpres[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,rout,p,qRW,cOutinf,\[Ps
 			X[rout]==\[Psi]inf[rout],Y[rout]==\[Psi]inf'[rout]
 		};  
 
-	{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,r2g,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE];
+	{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,r2g,rout},Method->"StiffnessSwitching",WorkingPrecision->workODE,PrecisionGoal->precGoal,AccuracyGoal->accGoal,InterpolationOrder->All];
 	(* Remove local variables not garbage collected*)
 	ClearSystemCache[];
 	Remove[Evaluate[ToExpression[Pick[Names["HSCSolverHomogeneousRWZ`Private`*"],StringMatchQ[#,"HSCSolverHomogeneousRWZ`Private`X$"~~__]&/@Names["HSCSolverHomogeneousRWZ`Private`*"],True]]]];
@@ -302,15 +310,19 @@ RWsolverUpres[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,rout,p,qRW,cOutinf,\[Ps
 (*In solution*)
 
 
-RWsolverIn[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,rin,rout,routplus,routmin,rp,p,qRW,cInH,\[Psi]hor,cOutinfplus,cOutinfmin,nmaxinfplus,nmaxinfmin,eqhor,r,rtor,X,Y,\[Psi]in,d\[Psi]in,nmaxhor,\[Psi]infplus,\[Psi]infmin,Bref,Binc,Rinfplus,dRinfplus,Rinfmin,dRinfmin,Rin,dRin,B1,B2},
+RWsolverIn[l_,\[Omega]_,r1g_]:=Module[{workODE,precBC,precGoal,accGoal,rin,rout,routplus,routmin,rp,p,qRW,cInH,\[Psi]hor,cOutinfplus,cOutinfmin,nmaxinfplus,nmaxinfmin,eqhor,r,rtor,X,Y,\[Psi]in,d\[Psi]in,nmaxhor,\[Psi]infplus,\[Psi]infmin,Bref,Binc,Rinfplus,dRinfplus,Rinfmin,dRinfmin,Rin,dRin,B1,B2},
 	rp=2;
 	rtor[r_]:=2Log[(r-rp)/2]+r;
 	If[(Precision[\[Omega]]==MachinePrecision)||(Precision[r1g]==MachinePrecision),
-		precODE=MachinePrecision;
+		workODE=MachinePrecision;
+		precGoal=13;
+		accGoal=13;
 		precBC=15;
 		,
-		precODE=Min[Precision[\[Omega]]-5,Precision[r1g]-5];
-		precBC=Min[Precision[\[Omega]],Precision[r1g]];
+		workODE=Min[{Precision[\[Omega]]-5,Precision[r1g]-5}];
+		precGoal=workODE-5;
+		accGoal=workODE-5;
+		precBC=Min[{Precision[\[Omega]],Precision[r1g]}];
 	];
 	p[r_,H_]:=2 (1+I*H*r^2*\[Omega])/((-2+r)r);
 	qRW[r_]:=(6-l(1+l)r)/((-2+r)r^2);
@@ -340,7 +352,7 @@ RWsolverIn[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,rin,rout,routplus,routmin,
 		};
 
 	If[r1g>=rout,
-		{\[Psi]in,d\[Psi]in}={X,Y}/.First@NDSolve[eqhor,{X,Y},{r,rin,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
+		{\[Psi]in,d\[Psi]in}={X,Y}/.First@NDSolve[eqhor,{X,Y},{r,rin,rout},Method->"StiffnessSwitching",WorkingPrecision->workODE,PrecisionGoal->precGoal,AccuracyGoal->accGoal,InterpolationOrder->All];
 
 		{Bref,Binc}={B1,B2}/.NSolve[B1*Rinfplus[rout]+B2*Rinfmin[rout]==(Exp[-I*\[Omega]*rtor[rout]]\[Psi]in[rout])&&B1*dRinfplus[rout]+B2*dRinfmin[rout]==(Exp[-I*\[Omega]*rtor[rout]]((-((I*\[Omega]*rout)/(rout-rp)))\[Psi]in[rout]+d\[Psi]in[rout])),{B1,B2}][[1]];
 
@@ -355,7 +367,7 @@ RWsolverIn[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,rin,rout,routplus,routmin,
 									Evaluate[{Bref,Binc} . {dRinfplus[r],dRinfmin[r]}]
 								]],Listable];
 		,
-		{\[Psi]in,d\[Psi]in}={X,Y}/.First@NDSolve[eqhor,{X,Y},{r,rin,r1g},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
+		{\[Psi]in,d\[Psi]in}={X,Y}/.First@NDSolve[eqhor,{X,Y},{r,rin,r1g},Method->"StiffnessSwitching",WorkingPrecision->workODE,PrecisionGoal->precGoal,AccuracyGoal->accGoal,InterpolationOrder->All];
 
 		Rin=Function[{r},Evaluate[If[r<=rin,Evaluate[Exp[-I*\[Omega]*rtor[r]]\[Psi]hor[r]],Evaluate[Exp[-I*\[Omega]*rtor[r]]\[Psi]in[r]]]],Listable];
 		dRin=Function[{r},Evaluate[If[r<=rin,Evaluate[Exp[-I*\[Omega]*rtor[r]]((-((I*\[Omega]*r)/(r-rp)))\[Psi]hor[r]+\[Psi]hor'[r])],Evaluate[Exp[-I*\[Omega]*rtor[r]]((-((I*\[Omega]*r)/(r-rp)))\[Psi]in[r]+d\[Psi]in[r])]]],Listable];
@@ -374,15 +386,19 @@ RWsolverIn[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,rin,rout,routplus,routmin,
 (*Up solution*)
 
 
-RWsolverUp[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,rinplus,rinmin,rp,p,qRW,\[Psi]inf,cOutinf,nmaxinf,eqinf,r,rtor,X,Y,\[Psi]up,d\[Psi]up,cInHplus,cInHmin,nmaxhorplus,nmaxhormin,\[Psi]horplus,\[Psi]hormin,Cref,Cinc,Rhorplus,dRhorplus,Rhormin,dRhormin,Rup,dRup,C1,C2},
+RWsolverUp[l_,\[Omega]_,r2g_]:=Module[{workODE,precBC,precGoal,accGoal,\[Lambda],rin,rout,rinplus,rinmin,rp,p,qRW,\[Psi]inf,cOutinf,nmaxinf,eqinf,r,rtor,X,Y,\[Psi]up,d\[Psi]up,cInHplus,cInHmin,nmaxhorplus,nmaxhormin,\[Psi]horplus,\[Psi]hormin,Cref,Cinc,Rhorplus,dRhorplus,Rhormin,dRhormin,Rup,dRup,C1,C2},
 	rp=2;
 	rtor[r_]:=2Log[(r-rp)/2]+r;
 	If[(Precision[\[Omega]]==MachinePrecision)||(Precision[r2g]==MachinePrecision),
-		precODE=MachinePrecision;
+		workODE=MachinePrecision;
+		precGoal=13;
+		accGoal=13;
 		precBC=15;
 		,
-		precODE=Min[Precision[\[Omega]]-5,Precision[r2g]-5];
-		precBC=Min[Precision[\[Omega]],Precision[r2g]];
+		workODE=Min[{Precision[\[Omega]]-5,Precision[r2g]-5}];
+		precGoal=workODE-5;
+		accGoal=workODE-5;
+		precBC=Min[{Precision[\[Omega]],Precision[r2g]}];
 	];
 	\[Lambda]=1/2(-1+l)(2+l);
 	p[r_,H_]:=2(1+I*H*r^2*\[Omega])/((-2+r)r);
@@ -417,7 +433,7 @@ RWsolverUp[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,rinplus
 		dRup=Function[{r},Evaluate[Exp[I \[Omega] rtor[r]](((I \[Omega] r)/(r-rp))\[Psi]inf[r]+\[Psi]inf'[r])],Listable];
 		,
 		If[r2g<=rin,
-			{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,rin,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
+			{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,rin,rout},Method->"StiffnessSwitching",WorkingPrecision->workODE,PrecisionGoal->precGoal,AccuracyGoal->accGoal,InterpolationOrder->All];
 			{Cinc,Cref}={C1,C2}/.NSolve[C1*Rhorplus[rin]+C2 Rhormin[rin]==(Exp[I*\[Omega]*rtor[rin]]\[Psi]up[rin])&&C1*dRhorplus[rin]+C2*dRhormin[rin]==(Exp[I*\[Omega]*rtor[rin]](((I*\[Omega]*rin)/(rin-rp))\[Psi]up[rin]+d\[Psi]up[rin])),{C1,C2}][[1]];
 		
 			Rup=Function[{r},Evaluate[If[r>=rin,
@@ -431,7 +447,7 @@ RWsolverUp[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,rinplus
 										Evaluate[{Cinc,Cref} . {dRhorplus[r],dRhormin[r]}]
 									]],Listable];
 			,
-			{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,r2g,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
+			{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,r2g,rout},Method->"StiffnessSwitching",WorkingPrecision->workODE,PrecisionGoal->precGoal,AccuracyGoal->accGoal,InterpolationOrder->All];
 
 			Rup=Function[{r},Evaluate[If[r>rout,Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]inf[r]],Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]up[r]]]],Listable];
 			dRup=Function[{r},Evaluate[If[r>rout,Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]inf[r]+\[Psi]inf'[r])],Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]up[r]+d\[Psi]up[r])]]],Listable];
@@ -451,15 +467,13 @@ RWsolverUp[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,rinplus
 (*Up solution near the horizon*)
 
 
-RWsolverUpNearHorizon[l_,\[Omega]_,{\[Psi]up_,d\[Psi]up_}]:=Module[{precODE,precBC,rin,rout,rinplus,rinmin,rp,\[Psi]inf,cOutinf,nmaxinf,eqinf,r,rtor,X,Y,cInHplus,cInHmin,nmaxhorplus,nmaxhormin,\[Psi]horplus,\[Psi]hormin,Cref,Cinc,Rhorplus,dRhorplus,Rhormin,dRhormin,C1,C2},
+RWsolverUpNearHorizon[l_,\[Omega]_,{\[Psi]up_,d\[Psi]up_}]:=Module[{precBC,rin,rout,rinplus,rinmin,rp,\[Psi]inf,cOutinf,nmaxinf,eqinf,r,rtor,X,Y,cInHplus,cInHmin,nmaxhorplus,nmaxhormin,\[Psi]horplus,\[Psi]hormin,Cref,Cinc,Rhorplus,dRhorplus,Rhormin,dRhormin,C1,C2},
 	rp=2;
 	rtor[r_]:=2Log[(r-rp)/2]+r;
 
 	If[(Precision[\[Omega]]==MachinePrecision),
-		precODE=MachinePrecision;
 		precBC=15;
 		,
-		precODE=Precision[\[Omega]]-5;
 		precBC=Precision[\[Omega]];
 	];
 
@@ -682,14 +696,18 @@ bcinfminZ[workingprecision_,l_,\[Omega]_]:=Module[{M=1,B1n,rp,rout,err,i,p,q,pin
 (*In solution rescaled*)
 
 
-ZsolverInres[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,\[Lambda],rin,rp,p,qZ,cInH,\[Psi]hor,eqhor,r,X,Y,\[Psi]in,d\[Psi]in,nmaxhor},
+ZsolverInres[l_,\[Omega]_,r1g_]:=Module[{workODE,precBC,precGoal,accGoal,\[Lambda],rin,rp,p,qZ,cInH,\[Psi]hor,eqhor,r,X,Y,\[Psi]in,d\[Psi]in,nmaxhor},
 	rp=2;
 	If[(Precision[\[Omega]]==MachinePrecision)||(Precision[r1g]==MachinePrecision),
-		precODE=MachinePrecision;
+		workODE=MachinePrecision;
+		precGoal=13;
+		accGoal=13;
 		precBC=15;
 		,
-		precODE=Min[Precision[\[Omega]]-5,Precision[r1g]-5];
-		precBC=Min[Precision[\[Omega]],Precision[r1g]];
+		workODE=Min[{Precision[\[Omega]]-5,Precision[r1g]-5}];
+		precGoal=workODE-5;
+		accGoal=workODE-5;
+		precBC=Min[{Precision[\[Omega]],Precision[r1g]}];
 	];
 	\[Lambda]=1/2(-1+l)(2+l);
 	p[r_,H_]:=2 (1+I*H*r^2*\[Omega])/((-2+r)r);
@@ -705,7 +723,7 @@ ZsolverInres[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,\[Lambda],rin,rp,p,qZ,cI
 			X[rin]==\[Psi]hor[rin],Y[rin]== \[Psi]hor'[rin]
 		};
 
-	{\[Psi]in,d\[Psi]in}={X,Y}/.First@NDSolve[eqhor,{X,Y},{r,rin,r1g},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
+	{\[Psi]in,d\[Psi]in}={X,Y}/.First@NDSolve[eqhor,{X,Y},{r,rin,r1g},Method->"StiffnessSwitching",WorkingPrecision->workODE,PrecisionGoal->precGoal,AccuracyGoal->accGoal,InterpolationOrder->All];
 
 	(* Remove local variables not garbage collected*)
 	ClearSystemCache[];
@@ -721,13 +739,17 @@ ZsolverInres[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,\[Lambda],rin,rp,p,qZ,cI
 (*Up solution rescaled*)
 
 
-ZsolverUpres[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rout,p,qZ,cOutinf,\[Psi]inf,eqinf,r,X,Y,\[Psi]up,d\[Psi]up,nmaxinf},
+ZsolverUpres[l_,\[Omega]_,r2g_]:=Module[{workODE,precBC,precGoal,accGoal,\[Lambda],rout,p,qZ,cOutinf,\[Psi]inf,eqinf,r,X,Y,\[Psi]up,d\[Psi]up,nmaxinf},
 	If[(Precision[\[Omega]]==MachinePrecision)||(Precision[r2g]==MachinePrecision),
-		precODE=MachinePrecision;
+		workODE=MachinePrecision;
+		precGoal=13;
+		accGoal=13;
 		precBC=15;
 		,
-		precODE=Min[Precision[\[Omega]]-5,Precision[r2g]-5];
-		precBC=Min[Precision[\[Omega]],Precision[r2g]];
+		workODE=Min[{Precision[\[Omega]]-5,Precision[r2g]-5}];
+		precGoal=workODE-5;
+		accGoal=workODE-5;
+		precBC=Min[{Precision[\[Omega]],Precision[r2g]}];
 	];
 	\[Lambda]=1/2(-1+l)(2+l);
 	p[r_,H_]:=2 (1+I*H*r^2*\[Omega])/((-2+r)r);
@@ -743,7 +765,7 @@ ZsolverUpres[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rout,p,qZ,cOut
 			X[rout]==\[Psi]inf[rout],Y[rout]==\[Psi]inf'[rout]
 		};  
 
-	{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,r2g,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
+	{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,r2g,rout},Method->"StiffnessSwitching",WorkingPrecision->workODE,PrecisionGoal->precGoal,AccuracyGoal->accGoal,InterpolationOrder->All];
 
 	(* Remove local variables not garbage collected*)
 	ClearSystemCache[];
@@ -759,15 +781,19 @@ ZsolverUpres[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rout,p,qZ,cOut
 (*In solution*)
 
 
-ZsolverIn[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,routplus,routmin,rp,p,qZ,cInH,\[Psi]hor,cOutinfplus,cOutinfmin,nmaxinfplus,nmaxinfmin,eqhor,r,rtor,X,Y,\[Psi]in,d\[Psi]in,nmaxhor,\[Psi]infplus,\[Psi]infmin,Bref,Binc,Rinfplus,dRinfplus,Rinfmin,dRinfmin,Rin,dRin,B1,B2},
+ZsolverIn[l_,\[Omega]_,r1g_]:=Module[{workODE,precBC,precGoal,accGoal,\[Lambda],rin,rout,routplus,routmin,rp,p,qZ,cInH,\[Psi]hor,cOutinfplus,cOutinfmin,nmaxinfplus,nmaxinfmin,eqhor,r,rtor,X,Y,\[Psi]in,d\[Psi]in,nmaxhor,\[Psi]infplus,\[Psi]infmin,Bref,Binc,Rinfplus,dRinfplus,Rinfmin,dRinfmin,Rin,dRin,B1,B2},
 	rp=2;
 	rtor[r_]:=2Log[(r-rp)/2]+r;
 	If[(Precision[\[Omega]]==MachinePrecision)||(Precision[r1g]==MachinePrecision),
-		precODE=MachinePrecision;
+		workODE=MachinePrecision;
+		precGoal=13;
+		accGoal=13;
 		precBC=15;
 		,
-		precODE=Min[Precision[\[Omega]]-5,Precision[r1g]-5];
-		precBC=Min[Precision[\[Omega]],Precision[r1g]];
+		workODE=Min[{Precision[\[Omega]]-5,Precision[r1g]-5}];
+		precGoal=workODE-5;
+		accGoal=workODE-5;
+		precBC=Min[{Precision[\[Omega]],Precision[r1g]}];
 	];
 	\[Lambda]=1/2(-1+l)(2+l);
 	p[r_,H_]:=2(1+I*H*r^2*\[Omega])/((-2+r)r);
@@ -798,7 +824,7 @@ ZsolverIn[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,routplus
 		};
 
 	If[r1g>=rout,
-		{\[Psi]in,d\[Psi]in}={X,Y}/.First@NDSolve[eqhor,{X,Y},{r,rin,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
+		{\[Psi]in,d\[Psi]in}={X,Y}/.First@NDSolve[eqhor,{X,Y},{r,rin,rout},Method->"StiffnessSwitching",WorkingPrecision->workODE,PrecisionGoal->precGoal,AccuracyGoal->accGoal,InterpolationOrder->All];
 		{Bref,Binc}={B1,B2}/.NSolve[B1*Rinfplus[rout]+B2*Rinfmin[rout]==(Exp[-I*\[Omega]*rtor[rout]]\[Psi]in[rout])&&B1 dRinfplus[rout]+B2*dRinfmin[rout]==(Exp[-I*\[Omega]*rtor[rout]]((-((I*\[Omega]*rout)/(rout-rp)))\[Psi]in[rout]+d\[Psi]in[rout])),{B1,B2}][[1]];
 
 		Rin=Function[{r},Evaluate[If[r<=rout,
@@ -812,7 +838,7 @@ ZsolverIn[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,routplus
 									Evaluate[{Bref,Binc} . {dRinfplus[r],dRinfmin[r]}]
 								]],Listable];
 		,
-		{\[Psi]in,d\[Psi]in}={X,Y}/.First@NDSolve[eqhor,{X,Y},{r,rin,r1g},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
+		{\[Psi]in,d\[Psi]in}={X,Y}/.First@NDSolve[eqhor,{X,Y},{r,rin,r1g},Method->"StiffnessSwitching",WorkingPrecision->workODE,PrecisionGoal->precGoal,AccuracyGoal->accGoal,InterpolationOrder->All];
 
 		Rin=Function[{r},Evaluate[If[r<=rin,Evaluate[Exp[-I*\[Omega]*rtor[r]]\[Psi]hor[r]],Evaluate[Exp[-I*\[Omega]*rtor[r]]\[Psi]in[r]]]],Listable];
 		dRin=Function[{r},Evaluate[If[r<=rin,Evaluate[Exp[-I*\[Omega]*rtor[r]]((-((I*\[Omega]*r)/(r-rp)))\[Psi]hor[r]+\[Psi]hor'[r])],Evaluate[Exp[-I*\[Omega]*rtor[r]]((-((I*\[Omega]*r)/(r-rp)))\[Psi]in[r]+d\[Psi]in[r])]]],Listable];
@@ -832,15 +858,19 @@ ZsolverIn[l_,\[Omega]_,r1g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,routplus
 (*Up solution*)
 
 
-ZsolverUp[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,rinplus,rinmin,rp,p,qZ,\[Psi]inf,cOutinf,nmaxinf,eqinf,r,rtor,X,Y,\[Psi]up,d\[Psi]up,cInHplus,cInHmin,nmaxhorplus,nmaxhormin,\[Psi]horplus,\[Psi]hormin,Cref,Cinc,Rhorplus,dRhorplus,Rhormin,dRhormin,Rup,dRup,C1,C2},
+ZsolverUp[l_,\[Omega]_,r2g_]:=Module[{workODE,precBC,precGoal,accGoal,\[Lambda],rin,rout,rinplus,rinmin,rp,p,qZ,\[Psi]inf,cOutinf,nmaxinf,eqinf,r,rtor,X,Y,\[Psi]up,d\[Psi]up,cInHplus,cInHmin,nmaxhorplus,nmaxhormin,\[Psi]horplus,\[Psi]hormin,Cref,Cinc,Rhorplus,dRhorplus,Rhormin,dRhormin,Rup,dRup,C1,C2},
 	rp=2;
 	rtor[r_]:=2Log[(r-rp)/2]+r;
 	If[(Precision[\[Omega]]==MachinePrecision)||(Precision[r2g]==MachinePrecision),
-		precODE=MachinePrecision;
-		precBC=precODE;
+		workODE=MachinePrecision;
+		precGoal=13;
+		accGoal=13;
+		precBC=15;
 		,
-		precODE=Min[Precision[\[Omega]]-5,Precision[r2g]-5];
-		precBC=Min[Precision[\[Omega]],Precision[r2g]];
+		workODE=Min[{Precision[\[Omega]]-5,Precision[r2g]-5}];
+		precGoal=workODE-5;
+		accGoal=workODE-5;
+		precBC=Min[{Precision[\[Omega]],Precision[r2g]}];
 	];
 	\[Lambda]=1/2(-1+l)(2+l);
 	p[r_,H_]:=2(1+I*H*r^2*\[Omega])/((-2+r)r);
@@ -875,7 +905,7 @@ ZsolverUp[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,rinplus,
 		dRup=Function[{r},Evaluate[Exp[I \[Omega] rtor[r]](((I \[Omega] r)/(r-rp))\[Psi]inf[r]+\[Psi]inf'[r])],Listable];
 		,
 		If[r2g<=rin,
-			{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,rin,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
+			{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,rin,rout},Method->"StiffnessSwitching",WorkingPrecision->workODE,PrecisionGoal->precGoal,AccuracyGoal->accGoal,InterpolationOrder->All];
 			{Cinc,Cref}={C1,C2}/.NSolve[C1*Rhorplus[rin]+C2 Rhormin[rin]==(Exp[I*\[Omega]*rtor[rin]]\[Psi]up[rin])&&C1*dRhorplus[rin]+C2*dRhormin[rin]==(Exp[I*\[Omega]*rtor[rin]](((I*\[Omega]*rin)/(rin-rp))\[Psi]up[rin]+d\[Psi]up[rin])),{C1,C2}][[1]];
 		
 			Rup=Function[{r},Evaluate[If[r>=rin,
@@ -889,7 +919,7 @@ ZsolverUp[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,rinplus,
 										Evaluate[{Cinc,Cref} . {dRhorplus[r],dRhormin[r]}]
 									]],Listable];
 			,
-			{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,r2g,rout},Method->"StiffnessSwitching",WorkingPrecision->precODE,InterpolationOrder->All];
+			{\[Psi]up,d\[Psi]up}={X,Y}/.First@NDSolve[eqinf,{X,Y},{r,r2g,rout},Method->"StiffnessSwitching",WorkingPrecision->workODE,PrecisionGoal->precGoal,AccuracyGoal->accGoal,InterpolationOrder->All];
 
 			Rup=Function[{r},Evaluate[If[r>rout,Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]inf[r]],Evaluate[Exp[I*\[Omega]*rtor[r]]\[Psi]up[r]]]],Listable];
 			dRup=Function[{r},Evaluate[If[r>rout,Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]inf[r]+\[Psi]inf'[r])],Evaluate[Exp[I*\[Omega]*rtor[r]](((I*\[Omega]*r)/(r-rp))\[Psi]up[r]+d\[Psi]up[r])]]],Listable];
@@ -910,15 +940,13 @@ ZsolverUp[l_,\[Omega]_,r2g_]:=Module[{precODE,precBC,\[Lambda],rin,rout,rinplus,
 (*Up solution near the horizon*)
 
 
-ZsolverUpNearHorizon[l_,\[Omega]_,{\[Psi]up_,d\[Psi]up_}]:=Module[{precODE,precBC,rin,rout,rinplus,rinmin,rp,\[Psi]inf,cOutinf,nmaxinf,eqinf,r,rtor,X,Y,cInHplus,cInHmin,nmaxhorplus,nmaxhormin,\[Psi]horplus,\[Psi]hormin,Cref,Cinc,Rhorplus,dRhorplus,Rhormin,dRhormin,C1,C2},
+ZsolverUpNearHorizon[l_,\[Omega]_,{\[Psi]up_,d\[Psi]up_}]:=Module[{precBC,rin,rout,rinplus,rinmin,rp,\[Psi]inf,cOutinf,nmaxinf,eqinf,r,rtor,X,Y,cInHplus,cInHmin,nmaxhorplus,nmaxhormin,\[Psi]horplus,\[Psi]hormin,Cref,Cinc,Rhorplus,dRhorplus,Rhormin,dRhormin,C1,C2},
 	rp=2;
 	rtor[r_]:=2Log[(r-rp)/2]+r;
 
 	If[(Precision[\[Omega]]==MachinePrecision),
-		precODE=MachinePrecision;
 		precBC=15;
 		,
-		precODE=Precision[\[Omega]]-5;
 		precBC=Precision[\[Omega]];
 	];
 
