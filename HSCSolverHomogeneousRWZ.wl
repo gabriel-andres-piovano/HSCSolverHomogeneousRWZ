@@ -234,7 +234,7 @@ RWsolverInres[l_,\[Omega]_,r1g_]:=Module[{workODE,precBC,precGoal,accGoal,rin,rp
 		workODE=MachinePrecision;
 		precGoal=13;
 		accGoal=13;
-		precBC=15;
+		precBC=13;
 		,
 		workODE=Min[{Precision[\[Omega]]-5,Precision[r1g]-5}];
 		precGoal=workODE-5;
@@ -275,7 +275,7 @@ RWsolverUpres[l_,\[Omega]_,r2g_]:=Module[{workODE,precBC,precGoal,accGoal,rout,p
 		workODE=MachinePrecision;
 		precGoal=13;
 		accGoal=13;
-		precBC=15;
+		precBC=13;
 		,
 		workODE=Min[{Precision[\[Omega]]-5,Precision[r2g]-5}];
 		precGoal=workODE-5;
@@ -317,7 +317,7 @@ RWsolverIn[l_,\[Omega]_,r1g_]:=Module[{workODE,precBC,precGoal,accGoal,rin,rout,
 		workODE=MachinePrecision;
 		precGoal=13;
 		accGoal=13;
-		precBC=15;
+		precBC=13;
 		,
 		workODE=Min[{Precision[\[Omega]]-5,Precision[r1g]-5}];
 		precGoal=workODE-5;
@@ -393,7 +393,7 @@ RWsolverUp[l_,\[Omega]_,r2g_]:=Module[{workODE,precBC,precGoal,accGoal,\[Lambda]
 		workODE=MachinePrecision;
 		precGoal=13;
 		accGoal=13;
-		precBC=15;
+		precBC=13;
 		,
 		workODE=Min[{Precision[\[Omega]]-5,Precision[r2g]-5}];
 		precGoal=workODE-5;
@@ -472,7 +472,7 @@ RWsolverUpNearHorizon[l_,\[Omega]_,{\[Psi]up_,d\[Psi]up_}]:=Module[{precBC,rin,r
 	rtor[r_]:=2Log[(r-rp)/2]+r;
 
 	If[(Precision[\[Omega]]==MachinePrecision),
-		precBC=15;
+		precBC=13;
 		,
 		precBC=Precision[\[Omega]];
 	];
@@ -702,7 +702,7 @@ ZsolverInres[l_,\[Omega]_,r1g_]:=Module[{workODE,precBC,precGoal,accGoal,\[Lambd
 		workODE=MachinePrecision;
 		precGoal=13;
 		accGoal=13;
-		precBC=15;
+		precBC=13;
 		,
 		workODE=Min[{Precision[\[Omega]]-5,Precision[r1g]-5}];
 		precGoal=workODE-5;
@@ -744,7 +744,7 @@ ZsolverUpres[l_,\[Omega]_,r2g_]:=Module[{workODE,precBC,precGoal,accGoal,\[Lambd
 		workODE=MachinePrecision;
 		precGoal=13;
 		accGoal=13;
-		precBC=15;
+		precBC=13;
 		,
 		workODE=Min[{Precision[\[Omega]]-5,Precision[r2g]-5}];
 		precGoal=workODE-5;
@@ -788,7 +788,7 @@ ZsolverIn[l_,\[Omega]_,r1g_]:=Module[{workODE,precBC,precGoal,accGoal,\[Lambda],
 		workODE=MachinePrecision;
 		precGoal=13;
 		accGoal=13;
-		precBC=15;
+		precBC=13;
 		,
 		workODE=Min[{Precision[\[Omega]]-5,Precision[r1g]-5}];
 		precGoal=workODE-5;
@@ -865,7 +865,7 @@ ZsolverUp[l_,\[Omega]_,r2g_]:=Module[{workODE,precBC,precGoal,accGoal,\[Lambda],
 		workODE=MachinePrecision;
 		precGoal=13;
 		accGoal=13;
-		precBC=15;
+		precBC=13;
 		,
 		workODE=Min[{Precision[\[Omega]]-5,Precision[r2g]-5}];
 		precGoal=workODE-5;
@@ -945,7 +945,7 @@ ZsolverUpNearHorizon[l_,\[Omega]_,{\[Psi]up_,d\[Psi]up_}]:=Module[{precBC,rin,ro
 	rtor[r_]:=2Log[(r-rp)/2]+r;
 
 	If[(Precision[\[Omega]]==MachinePrecision),
-		precBC=15;
+		precBC=13;
 		,
 		precBC=Precision[\[Omega]];
 	];
