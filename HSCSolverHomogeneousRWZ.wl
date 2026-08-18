@@ -7,10 +7,8 @@
 BeginPackage["HSCSolverHomogeneousRWZ`"];
 
 
-RWsolverInres::usage = "RWsolverInres[l, \[Omega], r1g] gives the rescaled In solution and its first-order derivative of the homogeneous Regge-Wheeler equation. r1g is the outermost integration radius.";
-
-
-RWsolverUpres::usage = "RWsolverUpres[l, \[Omega], r2g] gives the rescaled Up solution and its first-order derivative of the homogeneous Regge-Wheeler equation. r2g is the innermost integration radius.";
+(* ::Subsubsection::Closed:: *)
+(*Non-rescaled functions*)
 
 
 RWsolverIn::usage = "RWsolverIn[l, \[Omega], r1g] gives the In solution and its first-order derivative of the homogeneous Regge-Wheeler equation. r1g is the outermost integration radius.";
@@ -19,13 +17,7 @@ RWsolverIn::usage = "RWsolverIn[l, \[Omega], r1g] gives the In solution and its 
 RWsolverUp::usage = "RWsolverUp[l, \[Omega], r2g] gives the Up solution and its first-order derivative of the homogeneous Regge-Wheeler equation. r2g is the innermost integration radius.";
 
 
-RWsolverUpNearHorizon::usage = "RWsolverUpNearHorizon[l,\[Omega],{\[Psi]up,d\[Psi]up}] provides the boundary condition near the horizon for the Up solution of the Regge-Wheeler equation."
-
-
-ZsolverInres::usage = "RWsolverInres[l, \[Omega], r1g] gives the rescaled In solution and its first-order derivative of the homogeneous Regge-Wheeler equation. r1g is the outermost integration radius.";
-
-
-ZsolverUpres::usage = "RWsolverUpres[l, \[Omega], r2g] gives the rescaled Up solution and its first-order derivative of the homogeneous Regge-Wheeler equation. r2g is the innermost integration radius.";
+RWsolverUpNearHorizon::usage = "RWsolverUpNearHorizon[l, \[Omega], {\[Psi]up,d\[Psi]up}] provides the boundary condition near the horizon for the Up solution of the Regge-Wheeler equation."
 
 
 ZsolverIn::usage = "RWsolverIn[l, \[Omega], r1g] gives the In solution and its first-order derivative of the homogeneous Regge-Wheeler equation. r1g is the outermost integration radius.";
@@ -34,13 +26,39 @@ ZsolverIn::usage = "RWsolverIn[l, \[Omega], r1g] gives the In solution and its f
 ZsolverUp::usage = "RWsolverUp[l, \[Omega], r2g] gives the Up solution and its first-order derivative of the homogeneous Regge-Wheeler equation. r2g is the innermost integration radius.";
 
 
-ZsolverUpNearHorizon::usage = "ZsolverUpNearHorizon[l,\[Omega],{\[Psi]up,d\[Psi]up}] provides the boundary condition near the horizon for the Up solution of the Zerilli equation."
+ZsolverUpNearHorizon::usage = "ZsolverUpNearHorizon[l, \[Omega], {\[Psi]up,d\[Psi]up}] provides the boundary condition near the horizon for the Up solution of the Zerilli equation."
+
+
+(* ::Subsubsection::Closed:: *)
+(*Rescaled functions*)
+
+
+RWsolverInres::usage = "RWsolverInres[l, \[Omega], r1g] gives the rescaled In solution and its first-order derivative of the homogeneous Regge-Wheeler equation. r1g is the outermost integration radius.";
+
+
+RWsolverUpres::usage = "RWsolverUpres[l, \[Omega], r2g] gives the rescaled Up solution and its first-order derivative of the homogeneous Regge-Wheeler equation. r2g is the innermost integration radius.";
+
+
+RWsolverUpNearHorizonres::usage = "RWsolverUpNearHorizonres[l, \[Omega], {\[Psi]up,d\[Psi]up}] provides the rescaled boundary condition near the horizon for the Up solution of the Regge-Wheeler equation."
+
+
+ZsolverInres::usage = "RWsolverInres[l, \[Omega], r1g] gives the rescaled In solution and its first-order derivative of the homogeneous Regge-Wheeler equation. r1g is the outermost integration radius.";
+
+
+ZsolverUpres::usage = "RWsolverUpres[l, \[Omega], r2g] gives the rescaled Up solution and its first-order derivative of the homogeneous Regge-Wheeler equation. r2g is the innermost integration radius.";
+
+
+ZsolverUpNearHorizonres::usage = "ZsolverUpNearHorizonres[l, \[Omega], {\[Psi]up,d\[Psi]up}] provides the rescaled boundary condition near the horizon for the Up solution of the Zerilli equation."
+
+
+(* ::Subsubsection::Closed:: *)
+(*Start package*)
 
 
 Begin["`Private`"];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Functions for BCs and Regge-Wheeler solver in HS coordinates*)
 
 
@@ -505,7 +523,56 @@ RWsolverUpNearHorizon[l_,\[Omega]_,{\[Psi]up_,d\[Psi]up_}]:=Module[{precBC,rin,r
 ]
 
 
-(* ::Section::Closed:: *)
+(* ::Subsubsection::Closed:: *)
+(*Up solution near the horizon rescaled*)
+
+
+RWsolverUpNearHorizonres[l_,\[Omega]_,{\[Psi]up_,d\[Psi]up_}]:=Module[
+	{precBC,rin,rout,rinplus,rinmin,rp,\[Psi]inf,cOutinf,nmaxinf,eqinf,r,rtor,X,Y,cInHplus,cInHmin,nmaxhorplus,nmaxhormin,
+	 \[Psi]horplus,\[Psi]hormin,Cref,Cinc,Rhorplus,dRhorplus,Rhormin,dRhormin,Rhorplusres,dRhorplusres,Rhorminres,dRhorminres,C1,C2},
+	rp=2;
+	rtor[r_]:=2Log[(r-rp)/2]+r;
+
+	If[(Precision[\[Omega]]==MachinePrecision),
+		precBC=13;
+		,
+		precBC=Precision[\[Omega]];
+	];
+
+	{cOutinf,rout}=bcinfplusRW[precBC,l,\[Omega]];
+	nmaxinf=Length[cOutinf];
+	\[Psi]inf=Evaluate[Sum[cOutinf[[i]]#^(-i+1),{i,nmaxinf}]]&;
+
+	{cInHplus,rinplus}=bchorplusRW[precBC,l,\[Omega]];
+	{cInHmin,rinmin}=bchorminRW[precBC,l,\[Omega]];
+	nmaxhorplus=Length[cInHplus];
+	nmaxhormin=Length[cInHmin];
+	rin=Max[{rinplus,rinmin}];
+
+	\[Psi]horplus=Evaluate[Sum[cInHplus[[i]](#-rp)^(i-1),{i,nmaxhorplus}]]&;
+	\[Psi]hormin=Evaluate[Sum[cInHmin[[i]](#-rp)^(i-1),{i,nmaxhormin}]]&;
+
+	Rhorplus=Evaluate[Exp[I*\[Omega]*rtor[#]]\[Psi]horplus[#]]&;
+	dRhorplus=Evaluate[Rhorplus[#]((I*\[Omega]*#)/(#-rp))+Exp[I*\[Omega]*rtor[#]]\[Psi]horplus'[#]]&;
+	Rhormin=Evaluate[Exp[-I*\[Omega]*rtor[#]]\[Psi]hormin[#]]&;
+	dRhormin=Evaluate[Rhormin[#](-((I*\[Omega]*#)/(#-rp)))+Exp[-I*\[Omega]*rtor[#]]\[Psi]hormin'[#]]&;
+
+	{Cinc,Cref}={C1,C2}/.NSolve[C1*Rhorplus[rin]+C2*Rhormin[rin]==(Exp[I*\[Omega]*rtor[rin]]\[Psi]up[rin])&&C1*dRhorplus[rin]+C2*dRhormin[rin]==(Exp[I*\[Omega]*rtor[rin]](((I*\[Omega]*rin)/(rin-rp))\[Psi]up[rin]+d\[Psi]up[rin])),{C1,C2}][[1]];
+	
+	Rhorplusres=Evaluate[\[Psi]horplus[#]]&;
+	dRhorplusres=Evaluate[\[Psi]horplus'[#]]&;
+	Rhorminres=Evaluate[\[Psi]hormin[#]]&;
+	dRhorminres=Evaluate[\[Psi]hormin'[#]]&;
+	
+	{
+		{Function[{r},Evaluate[Cinc*Rhorplusres[r]],Listable],Function[{r},Evaluate[Cinc*dRhorplusres[r]],Listable]},
+		{Function[{r},Evaluate[Cref*Rhorminres[r]],Listable],Function[{r},Evaluate[Cref*dRhorminres[r]],Listable]},
+		{rin,rout},{Cinc,Cref}
+	}
+]
+
+
+(* ::Section:: *)
 (*Functions for BCs and Zerilli solver in HS coordinates*)
 
 
@@ -973,6 +1040,55 @@ ZsolverUpNearHorizon[l_,\[Omega]_,{\[Psi]up_,d\[Psi]up_}]:=Module[{precBC,rin,ro
 	{
 		{Function[{r},Evaluate[Cinc*Rhorplus[r]],Listable],Function[{r},Evaluate[Cinc*dRhorplus[r]],Listable]},
 		{Function[{r},Evaluate[Cref*Rhormin[r]],Listable],Function[{r},Evaluate[Cref*dRhormin[r]],Listable]},
+		{rin,rout},{Cinc,Cref}
+	}
+]
+
+
+(* ::Subsubsection::Closed:: *)
+(*Up solution near the horizon rescaled*)
+
+
+ZsolverUpNearHorizonres[l_,\[Omega]_,{\[Psi]up_,d\[Psi]up_}]:=Module[
+	{precBC,rin,rout,rinplus,rinmin,rp,\[Psi]inf,cOutinf,nmaxinf,eqinf,r,rtor,X,Y,cInHplus,cInHmin,nmaxhorplus,nmaxhormin,
+	 \[Psi]horplus,\[Psi]hormin,Cref,Cinc,Rhorplus,dRhorplus,Rhormin,dRhormin,Rhorplusres,dRhorplusres,Rhorminres,dRhorminres,C1,C2},
+	rp=2;
+	rtor[r_]:=2Log[(r-rp)/2]+r;
+
+	If[(Precision[\[Omega]]==MachinePrecision),
+		precBC=13;
+		,
+		precBC=Precision[\[Omega]];
+	];
+
+	{cOutinf,rout}=bcinfplusZ[precBC,l,\[Omega]];
+	nmaxinf=Length[cOutinf];
+	\[Psi]inf=Evaluate[Sum[cOutinf[[i]]#^(-i+1),{i,nmaxinf}]]&;
+
+	{cInHplus,rinplus}=bchorplusZ[precBC,l,\[Omega]];
+	{cInHmin,rinmin}=bchorminZ[precBC,l,\[Omega]];
+	nmaxhorplus=Length[cInHplus];
+	nmaxhormin=Length[cInHmin];
+	rin=Max[{rinplus,rinmin}];
+
+	\[Psi]horplus=Evaluate[Sum[cInHplus[[i]](#-rp)^(i-1),{i,nmaxhorplus}]]&;
+	\[Psi]hormin=Evaluate[Sum[cInHmin[[i]](#-rp)^(i-1),{i,nmaxhormin}]]&;
+
+	Rhorplus=Evaluate[Exp[I*\[Omega]*rtor[#]]\[Psi]horplus[#]]&;
+	dRhorplus=Evaluate[Rhorplus[#]((I*\[Omega]*#)/(#-rp))+Exp[I*\[Omega]*rtor[#]]\[Psi]horplus'[#]]&;
+	Rhormin=Evaluate[Exp[-I*\[Omega]*rtor[#]]\[Psi]hormin[#]]&;
+	dRhormin=Evaluate[Rhormin[#](-((I*\[Omega]*#)/(#-rp)))+Exp[-I*\[Omega]*rtor[#]]\[Psi]hormin'[#]]&;
+
+	{Cinc,Cref}={C1,C2}/.NSolve[C1*Rhorplus[rin]+C2*Rhormin[rin]==(Exp[I*\[Omega]*rtor[rin]]\[Psi]up[rin])&&C1*dRhorplus[rin]+C2*dRhormin[rin]==(Exp[I*\[Omega]*rtor[rin]](((I*\[Omega]*rin)/(rin-rp))\[Psi]up[rin]+d\[Psi]up[rin])),{C1,C2}][[1]];
+	
+	Rhorplusres=Evaluate[\[Psi]horplus[#]]&;
+	dRhorplusres=Evaluate[\[Psi]horplus'[#]]&;
+	Rhorminres=Evaluate[\[Psi]hormin[#]]&;
+	dRhorminres=Evaluate[\[Psi]hormin'[#]]&;
+	
+	{
+		{Function[{r},Evaluate[Cinc*Rhorplusres[r]],Listable],Function[{r},Evaluate[Cinc*dRhorplusres[r]],Listable]},
+		{Function[{r},Evaluate[Cref*Rhorminres[r]],Listable],Function[{r},Evaluate[Cref*dRhorminres[r]],Listable]},
 		{rin,rout},{Cinc,Cref}
 	}
 ]
